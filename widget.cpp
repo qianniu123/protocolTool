@@ -1,5 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include <QSerialPortInfo>
+#include <QSplitter>
 
 #include <QTableWidgetItem>
 #include <QPushButton>
@@ -9,7 +11,26 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    setWindowTitle(QString("SG"));
 
+    //layout
+    this->setLayout(ui->horizontalLayout_all);
+
+    //splitter
+    /*
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, nullptr);
+    splitter->addWidget(ui->textEdit);
+    splitter->addWidget(ui->frame_right);
+    splitter->show();
+    */
+    //--------------------------------------------------------------------------------
+    m_portTimer = new QTimer();
+    m_portTimer->setInterval(1000);
+    connect(m_portTimer, &QTimer::timeout, this, &Widget::slot_port_timeout);
+    m_portTimer->start();
+
+    m_serialPort = new QSerialPort();
+    connect(m_serialPort, &QSerialPort::readyRead, this, &Widget::slot_port_readyRead);
 
     //---------------
     init();
@@ -22,6 +43,12 @@ void Widget::init()
     int row_cnt = m_protocol->m_cmdList.count();
     //ui->tableWidget_cmd->setRowCount(row_cnt);
     ui->tableWidget_cmd->setColumnCount(1);
+    QStringList headerList;
+    headerList << "CMD";
+    ui->tableWidget_cmd->setHorizontalHeaderLabels(headerList);
+    ui->tableWidget_cmd->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget_cmd->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     for(int row_index=0; row_index<row_cnt; row_index++)
     {
         QPushButton *p_button = new QPushButton();
@@ -41,3 +68,63 @@ Widget::~Widget()
     delete ui;
 }
 
+void Widget::slot_port_timeout()
+{
+    static QList<QSerialPortInfo> oldComPorts;
+    QList<QSerialPortInfo> comPorts = QSerialPortInfo::availablePorts();
+    if(oldComPorts.size() != comPorts.size())
+    {
+        oldComPorts.clear();
+        oldComPorts = comPorts;
+
+        //refresh com ports
+        QStringList portList;
+        foreach (const QSerialPortInfo &portInfo, comPorts)
+        {
+              portList << portInfo.portName();
+        }
+        ui->comboBox_comPort->clear();
+        ui->comboBox_comPort->addItems(portList);
+    }
+}
+
+void Widget::on_pushButton_open_clicked()
+{
+    m_serialPort->setBaudRate(QSerialPort::Baud9600);
+    m_serialPort->setDataBits(QSerialPort::Data8);
+    m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    m_serialPort->setParity(QSerialPort::NoParity);
+    m_serialPort->setStopBits(QSerialPort::OneStop);
+
+    m_serialPort->setReadBufferSize(1024);
+    //m_serialPort->waitForReadyRead(100);
+    m_serialPort->setPortName(ui->comboBox_comPort->currentText());
+
+    if(ui->pushButton_open->text() == QString("打开串口"))
+    {
+        bool ret = m_serialPort->open(QIODevice::ReadWrite);
+        if(ret)
+        {
+            ui->pushButton_open->setText(QString("关闭串口"));
+        }
+    }
+    else if(ui->pushButton_open->text() == QString("关闭串口"))
+    {
+        m_serialPort->close();
+        ui->pushButton_open->setText(QString("打开串口"));
+    }
+}
+
+void Widget::slot_port_readyRead()
+{
+    QByteArray rxArray = m_serialPort->readAll();
+    //m_serialPort->waitForReadyRead(100);
+
+    if(!rxArray.isEmpty())
+    {
+
+
+
+    }
+
+}
