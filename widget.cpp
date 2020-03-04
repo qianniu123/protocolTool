@@ -2,16 +2,16 @@
 #include "ui_widget.h"
 #include <QSerialPortInfo>
 #include <QSplitter>
+#include <QDebug>
 
 #include <QTableWidgetItem>
 #include <QPushButton>
 
-Widget::Widget(QWidget *parent)
-    : QWidget(parent)
+Widget::Widget(QWidget *parent, Protocol *protocol): QWidget(parent) ,m_protocol(protocol)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setWindowTitle(QString("SG"));
+    setWindowTitle(QString("protocolTool_V1.0"));
 
     //layout
     this->setLayout(ui->horizontalLayout_all);
@@ -32,19 +32,51 @@ Widget::Widget(QWidget *parent)
     m_serialPort = new QSerialPort();
     connect(m_serialPort, &QSerialPort::readyRead, this, &Widget::slot_port_readyRead);
 
-    //---------------
+    //--------------------------------------------------------------------------------------------------
+    m_protocolList.clear();
+    m_protocolList << "SG_PROTO" << "JL_PROTO";
+    ui->comboBox_protocol->addItems(m_protocolList);
+    connect(ui->comboBox_protocol, &QComboBox::currentTextChanged, this, &Widget::slot_protocol_changed);
+
+    //-----------
     init();
 }
 
 void Widget::init()
 {
-    m_protocol = new SGProtocol();
+    slot_protocol_changed(ui->comboBox_protocol->currentText());
+
+
+}
+
+void Widget::slot_protocol_changed(QString protocolName)
+{
+    if(m_protocol)
+    {
+        delete m_protocol;
+        m_protocol = nullptr;
+    }
+
+    if(protocolName == "SG_PROTO")
+    {
+        m_protocol = new SGProtocol();
+    }
+    else if(protocolName == "JL_PROTO")
+    {
+        m_protocol = new JLProtocol();
+    }
+    else
+    {
+        return;
+    }
 
     int row_cnt = m_protocol->m_cmdList.count();
-    //ui->tableWidget_cmd->setRowCount(row_cnt);
+    ui->tableWidget_cmd->clear();
+    ui->tableWidget_cmd->setRowCount(0);
     ui->tableWidget_cmd->setColumnCount(1);
+
     QStringList headerList;
-    headerList << "CMD";
+    headerList << protocolName;
     ui->tableWidget_cmd->setHorizontalHeaderLabels(headerList);
     ui->tableWidget_cmd->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_cmd->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -56,8 +88,14 @@ void Widget::init()
         p_button->setText(text);
 
         slot_function slot_fun = m_protocol->m_strToCmd[text];
-        connect(p_button, &QPushButton::clicked, m_protocol, slot_fun); //&slot seem as a normal function pointer
-
+        if(slot_fun != nullptr) //!!!
+        {
+            connect(p_button, &QPushButton::clicked, m_protocol, slot_fun); //&slot seem as a normal function pointer
+        }
+        else
+        {
+            qDebug() << QString("slot_fun = nullptr!");
+        }
         ui->tableWidget_cmd->insertRow(row_index);
         ui->tableWidget_cmd->setCellWidget(row_index, 0, p_button);
     }

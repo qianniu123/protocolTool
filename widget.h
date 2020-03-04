@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QTimer>
 
+#include "protocol.h"
 #include "sg/sgprotocol.h"
 #include "JL/jlprotocol.h"
 
@@ -17,17 +18,17 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = nullptr);
+    Widget(QWidget *parent = nullptr, Protocol *protocol=nullptr);
     ~Widget();
-private:
-    Ui::Widget *ui;
 
 public:
     void init();
 
+    QStringList m_protocolList;
     //void *m_protocol; //How to work with multiple protocols
     //JLProtocol  *m_protocol;//JL
-    SGProtocol  *m_protocol;//SG
+    //SGProtocol  *m_protocol;//SG
+    Protocol    *m_protocol;
 
     QSerialPort *m_serialPort;
     QTimer      *m_portTimer;
@@ -36,8 +37,12 @@ public:
 public slots:
     void slot_port_timeout();
     void slot_port_readyRead();
+    void slot_protocol_changed(QString protocolName);
 
 private slots:
     void on_pushButton_open_clicked();
+
+private:
+    Ui::Widget *ui;
 };
 #endif // WIDGET_H

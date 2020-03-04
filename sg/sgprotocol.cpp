@@ -1,20 +1,21 @@
 #include "sgprotocol.h"
 #include <QDebug>
 
-SGProtocol::SGProtocol(QObject *parent) : QObject(parent)
+SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
 {
-
+    //m_protocolList << "SG_Proto";
+    //-------------------------------------------------------------------------------
     m_cmdList.clear();
-    m_cmdList << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload";
-    //SGProtocol::slot_device_hello_send();
-    m_strToCmd["DEVICE_HELLO"]      = &SGProtocol::slot_device_hello_send;
-    m_strToCmd["DEVICE_BIND"]       = &SGProtocol::slot_device_bind_send;
-    m_strToCmd["DEVICE_HEARTBEAT"]  = &SGProtocol::slot_device_heartbeat_send;
-    m_strToCmd["DEVICE_SOFTWARE_VERSION_Upload"]=&SGProtocol::slot_device_software_version_upload;
+    m_cmdList << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload";    
 
+    m_strToCmd.clear();
+    m_strToCmd["DEVICE_HELLO"]      = (slot_function)(&SGProtocol::slot_device_hello_send);
+    m_strToCmd["DEVICE_BIND"]       = (slot_function)&SGProtocol::slot_device_bind_send;
+    m_strToCmd["DEVICE_HEARTBEAT"]  = (slot_function)&SGProtocol::slot_device_heartbeat_send;
+    m_strToCmd["DEVICE_SOFTWARE_VERSION_Upload"]=(slot_function)&SGProtocol::slot_device_software_version_upload;
 
     //----------
-    packInit();
+    //packInit();
 }
 
 void SGProtocol::packInit()
@@ -44,7 +45,7 @@ void SGProtocol::slot_device_hello_send()
 
 void SGProtocol::slot_device_heartbeat_send()
 { 
-    int pack_len = 0;
+/*    int pack_len = 0;
     uint8_t *p_pack_end;
 
     packInit();
@@ -60,8 +61,8 @@ void SGProtocol::slot_device_heartbeat_send()
     memcpy(p_pack_end, packEnd, sizeof(packEnd));
 
     pack_len = sizeof(sg_commut_data_t) + sizeof(walk) + sizeof(packEnd);
-
-    qDebug() << QString("heartbeat send: pack_len = %1").arg(pack_len);
+*/
+    qDebug() << QString("SGProtocol::slot_device_heartbeat_send");
 }
 
 void SGProtocol::slot_device_bind_send()

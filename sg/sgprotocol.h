@@ -211,30 +211,29 @@ typedef struct
 
 
 //===============================================================
-
 #include <QObject>
+#include "protocol.h"
+
 #include <QString>
 #include <QSerialPort>
 #include <QMap>
 
-#include <map>
-#include <unordered_map>
-
 using namespace std;
 
 class SGProtocol;
-typedef void (SGProtocol::*slot_function)(void);
+//typedef void (SGProtocol::*slot_function)(void);
 
-class SGProtocol : public QObject
+class SGProtocol : public Protocol //,public QObject
 {
     Q_OBJECT
 public:
-    explicit SGProtocol(QObject *parent = nullptr);
+    explicit SGProtocol(Protocol *parent = nullptr);
     void packInit();
 
     QSerialPort *p_port;
 
-    QStringList m_cmdList;
+    //QStringList m_cmdList;
+    //QMap<QString, slot_function> m_strToCmd; //cmd_str --> cmd_function()
 
     uint8_t token[32];
     uint8_t userId[6];
@@ -244,13 +243,10 @@ public:
     sg_commut_data_t *p_sg_pack;
                     //userId token
 
-    QMap<QString, slot_function> m_strToCmd; //cmd_str --> cmd_function()
-
 
 signals:
 
 public slots:
-//public:
     void slot_device_heartbeat_send(void);
     void slot_device_hello_send(void);
     void slot_device_bind_send(void);

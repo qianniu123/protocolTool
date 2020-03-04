@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     JL/jlprotocol.cpp \
     main.cpp \
+    protocol.cpp \
     sg/sgprotocol.cpp \
     widget.cpp
 
 HEADERS += \
     JL/jlprotocol.h \
+    protocol.h \
     sg/sgprotocol.h \
     widget.h
 
