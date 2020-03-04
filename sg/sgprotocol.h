@@ -221,7 +221,7 @@ typedef struct
 using namespace std;
 
 class SGProtocol;
-//typedef void (SGProtocol::*slot_function)(void);
+typedef void (SGProtocol::*slot_func_sg)(void);
 
 class SGProtocol : public Protocol //,public QObject
 {
@@ -233,7 +233,7 @@ public:
     QSerialPort *p_port;
 
     //QStringList m_cmdList;
-    //QMap<QString, slot_function> m_strToCmd; //cmd_str --> cmd_function()
+    QMap<QString, slot_func_sg> m_strToCmd_sg; //cmd_str --> cmd_function()
 
     uint8_t token[32];
     uint8_t userId[6];
@@ -247,6 +247,8 @@ public:
 signals:
 
 public slots:
+    void slot_cmd_send(QString strCmd) override;
+
     void slot_device_heartbeat_send(void);
     void slot_device_hello_send(void);
     void slot_device_bind_send(void);

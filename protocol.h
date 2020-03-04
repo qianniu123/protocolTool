@@ -21,7 +21,7 @@ public:
 signals:
 
 public slots:
-
+    virtual void slot_cmd_send(QString strCmd) = 0;
 };
 
 #endif // PROTOCOL_H

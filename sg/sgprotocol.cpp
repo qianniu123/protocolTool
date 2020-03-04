@@ -8,6 +8,10 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
     m_cmdList.clear();
     m_cmdList << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload";    
 
+    m_strToCmd_sg.clear();
+    m_strToCmd_sg["DEVICE_HELLO"]   = &SGProtocol::slot_device_hello_send;
+    m_strToCmd_sg["DEVICE_BIND"]    = &SGProtocol::slot_device_bind_send;
+    //or
     m_strToCmd.clear();
     m_strToCmd["DEVICE_HELLO"]      = (slot_function)(&SGProtocol::slot_device_hello_send);
     m_strToCmd["DEVICE_BIND"]       = (slot_function)&SGProtocol::slot_device_bind_send;
@@ -34,7 +38,12 @@ void SGProtocol::packInit()
     packEnd[4] = SG_PACKET_END5;
 }
 
-
+void SGProtocol::slot_cmd_send(QString strCmd)
+{
+    qDebug() << QString("CMD=%1").arg(strCmd);
+    slot_func_sg func = m_strToCmd_sg[strCmd];
+    (this->*func)();//成员函数指针的使用
+}
 
 void SGProtocol::slot_device_hello_send()
 {

@@ -96,6 +96,11 @@ void Widget::slot_protocol_changed(QString protocolName)
         {
             qDebug() << QString("slot_fun = nullptr!");
         }
+
+        //or
+        //maybe Mypushbutton inherit form qpushbutton, realize Mypushbutton::click(QString buttonName)
+        //connect(p_button, &QPushButton::click, m_protocol, &Protocol::slot_cmd_send);//QPushButton::click has no param
+
         ui->tableWidget_cmd->insertRow(row_index);
         ui->tableWidget_cmd->setCellWidget(row_index, 0, p_button);
     }
