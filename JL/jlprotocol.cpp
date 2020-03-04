@@ -26,6 +26,10 @@ void JLProtocol::slot_cmd_send(QString strCmd) //strCmd to cmd function
     if(func) (this->*func)();//成员函数指针的使用
     */
 }
+void JLProtocol::slot_data_recv(char* data,int len)
+{
+    qDebug() << QString("JLProtocol::slot_data_recv");
+}
 
 void JLProtocol::slot_heartbeat_send()
 {

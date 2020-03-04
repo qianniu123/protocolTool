@@ -50,6 +50,23 @@ void SGProtocol::slot_cmd_send(QString strCmd)
     */
 }
 
+void SGProtocol::slot_data_recv(char *data,int len)
+{
+    recvArray.append(data, len);
+
+
+}
+//or
+int SGProtocol::parse_pack(char *data, int len)
+{
+    recvArray.append(data, len);
+
+
+
+
+    return  0;
+}
+
 void SGProtocol::slot_device_hello_send()
 {
     qDebug() << QString("hello send");
@@ -71,7 +88,7 @@ void SGProtocol::slot_device_hello_send()
     emit sig_send_debug_data(debugBuffer);
 
     //send
-    emit sig_send_data(sendBuffer, pack_len);
+    emit sig_send_data((char*)sendBuffer, pack_len);
 }
 
 void SGProtocol::slot_device_heartbeat_send()
@@ -98,7 +115,7 @@ void SGProtocol::slot_device_heartbeat_send()
     emit sig_send_debug_data(debugBuffer);
 
     //send
-    emit sig_send_data(sendBuffer, pack_len);
+    emit sig_send_data((char*)sendBuffer, pack_len);
 }
 
 void SGProtocol::slot_device_bind_send()
@@ -128,7 +145,7 @@ void SGProtocol::slot_device_bind_send()
     emit sig_send_debug_data(debugBuffer);
 
     //send
-    emit sig_send_data(sendBuffer, pack_len);
+    emit sig_send_data((char*)sendBuffer, pack_len);
 }
 
 void SGProtocol::slot_device_software_version_upload()
@@ -158,5 +175,5 @@ void SGProtocol::slot_device_software_version_upload()
     emit sig_send_debug_data(debugBuffer);
 
     //send
-    emit sig_send_data(sendBuffer, pack_len);
+    emit sig_send_data((char*)sendBuffer, pack_len);
 }

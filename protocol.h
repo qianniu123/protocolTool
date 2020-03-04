@@ -18,13 +18,16 @@ public:
     QStringList m_cmdList;
     QMap<QString, slot_function> m_strToCmd;
 
+    virtual int parse_pack(char* data,int len);
 
 signals:
-    void sig_send_data(uint8_t* data, int len);
+    void sig_send_data(char* data, int len);
     void sig_send_debug_data(char *data);
 
 public slots:
     virtual void slot_cmd_send(QString strCmd) = 0;
+    virtual void slot_data_recv(char *data, int len);
+
 };
 
 #endif // PROTOCOL_H

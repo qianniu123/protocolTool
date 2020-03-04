@@ -233,7 +233,8 @@ public:
     QMap<QString, slot_func_sg> m_strToCmd_sg; //cmd_str --> cmd_function()
 
     uint8_t sendBuffer[1024];
-    uint8_t recvBuffer[1024];
+    //uint8_t recvBuffer[1024];
+    QByteArray recvArray;
     char    debugBuffer[1024];
 
     sg_commut_data_t *p_sg_pack;
@@ -242,12 +243,14 @@ public:
     uint8_t userId[6];
     uint8_t packEnd[5];
 
+    int parse_pack(char *data, int len) override;
 
 signals:
     //void sig_SendData(uint8_t data, int len);//in Base class
 
 public slots:
     void slot_cmd_send(QString strCmd) override;
+    void slot_data_recv(char *data, int len) override;
 
     void slot_device_heartbeat_send(void);
     void slot_device_hello_send(void);

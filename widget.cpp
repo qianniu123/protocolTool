@@ -72,6 +72,7 @@ void Widget::slot_protocol_changed(QString protocolName)
 
     connect(m_protocol, &Protocol::sig_send_data, this, &Widget::slot_send_data);
     connect(m_protocol, &Protocol::sig_send_debug_data, this, &Widget::slot_send_debug_data);
+    connect(this, &Widget::sig_data_recv, m_protocol, &Protocol::slot_data_recv);
 
     int row_cnt = m_protocol->m_cmdList.count();
     ui->tableWidget_cmd->clear();
@@ -161,10 +162,10 @@ void Widget::on_pushButton_open_clicked()
     }
 }
 
-void Widget::slot_send_data(uint8_t *data, int len)
+void Widget::slot_send_data(char *data, int len)
 {
     qDebug() << QString("Widget::slot_send_data: len = %1").arg(len);
-    QByteArray txArray((char*)data, len);
+    QByteArray txArray(data, len);
     //send
     if(m_serialPort && m_serialPort->isOpen())
     {
@@ -189,9 +190,11 @@ void Widget::slot_port_readyRead()
 
     if(!rxArray.isEmpty())
     {
-        ui->textEdit->append(QString(rxArray.toHex().toUpper()));
-        //emit sig_data_recv(); //send to protocl
+        //ui->textEdit->append(QString(rxArray.toHex().toUpper()));
 
+        //emit sig_data_recv(rxArray.data(), rxArray.size());//send to protocl
+        //or
+        m_protocol->parse_pack(rxArray.data(), rxArray.size());
     }
 
 }

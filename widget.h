@@ -25,9 +25,6 @@ public:
     void init();
 
     QStringList m_protocolList;
-    //void *m_protocol; //How to work with multiple protocols
-    //JLProtocol  *m_protocol;//JL
-    //SGProtocol  *m_protocol;//SG
     Protocol    *m_protocol;
 
     QSerialPort *m_serialPort;
@@ -39,11 +36,14 @@ public slots:
     void slot_port_readyRead();
     void slot_protocol_changed(QString protocolName);
 
-    void slot_send_data(uint8_t* data, int len);
+    void slot_send_data(char* data, int len);
     void slot_send_debug_data(char *data);
 
 private slots:
     void on_pushButton_open_clicked();
+
+signals:
+    void sig_data_recv(char* data, int len);
 
 private:
     Ui::Widget *ui;

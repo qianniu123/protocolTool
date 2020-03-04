@@ -24,6 +24,7 @@ signals:
 
 public slots:
     void slot_cmd_send(QString strCmd) override;
+    void slot_data_recv(char *data, int len) override;
 
     void slot_heartbeat_send(void);
     void slot_test_send(void);
