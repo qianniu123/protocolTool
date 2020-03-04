@@ -70,6 +70,9 @@ void Widget::slot_protocol_changed(QString protocolName)
         return;
     }
 
+    connect(m_protocol, &Protocol::sig_send_data, this, &Widget::slot_send_data);
+    connect(m_protocol, &Protocol::sig_send_debug_data, this, &Widget::slot_send_debug_data);
+
     int row_cnt = m_protocol->m_cmdList.count();
     ui->tableWidget_cmd->clear();
     ui->tableWidget_cmd->setRowCount(0);
@@ -133,7 +136,7 @@ void Widget::slot_port_timeout()
 
 void Widget::on_pushButton_open_clicked()
 {
-    m_serialPort->setBaudRate(QSerialPort::Baud9600);
+    m_serialPort->setBaudRate(QSerialPort::Baud115200);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
     m_serialPort->setParity(QSerialPort::NoParity);
@@ -158,6 +161,27 @@ void Widget::on_pushButton_open_clicked()
     }
 }
 
+void Widget::slot_send_data(uint8_t *data, int len)
+{
+    qDebug() << QString("Widget::slot_send_data: len = %1").arg(len);
+    QByteArray txArray((char*)data, len);
+    //send
+    if(m_serialPort && m_serialPort->isOpen())
+    {
+        m_serialPort->write(txArray);
+    }
+
+    //dispaly
+    QString strData; strData.append(txArray.toHex().toUpper());
+    ui->textEdit->append(strData);
+}
+
+void Widget::slot_send_debug_data(char *data)
+{
+    //just for display
+    ui->textEdit->append(QString(data));
+}
+
 void Widget::slot_port_readyRead()
 {
     QByteArray rxArray = m_serialPort->readAll();
@@ -165,8 +189,8 @@ void Widget::slot_port_readyRead()
 
     if(!rxArray.isEmpty())
     {
-
-
+        ui->textEdit->append(QString(rxArray.toHex().toUpper()));
+        //emit sig_data_recv(); //send to protocl
 
     }
 

@@ -39,6 +39,9 @@ public slots:
     void slot_port_readyRead();
     void slot_protocol_changed(QString protocolName);
 
+    void slot_send_data(uint8_t* data, int len);
+    void slot_send_debug_data(char *data);
+
 private slots:
     void on_pushButton_open_clicked();
 
