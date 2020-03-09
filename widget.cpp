@@ -32,6 +32,7 @@ Widget::Widget(QWidget *parent, Protocol *protocol): QWidget(parent) ,m_protocol
     m_serialPort = new QSerialPort();
     connect(m_serialPort, &QSerialPort::readyRead, this, &Widget::slot_port_readyRead);
 
+    connect(ui->pushButton_clearText, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
     //--------------------------------------------------------------------------------------------------
     m_protocolList.clear();
     m_protocolList << "SG_PROTO" << "JL_PROTO";
@@ -71,7 +72,7 @@ void Widget::slot_protocol_changed(QString protocolName)
     }
 
     connect(m_protocol, &Protocol::sig_send_data, this, &Widget::slot_send_data);
-    connect(m_protocol, &Protocol::sig_send_debug_data, this, &Widget::slot_send_debug_data);
+    connect(m_protocol, &Protocol::sig_send_display_data, this, &Widget::slot_send_display_data);
     connect(this, &Widget::sig_data_recv, m_protocol, &Protocol::slot_data_recv);
 
     int row_cnt = m_protocol->m_cmdList.count();
@@ -177,10 +178,12 @@ void Widget::slot_send_data(char *data, int len)
     ui->textEdit->append(strData);
 }
 
-void Widget::slot_send_debug_data(char *data)
+void Widget::slot_send_display_data(char *data, int len)
 {
+    //qDebug() << QString("Widget::slot_send_display_data(data:%1, len:%2)").arg(data).arg(len);
     //just for display
-    ui->textEdit->append(QString(data));
+    QByteArray dispArray(data, len);
+    ui->textEdit->append(QString(dispArray));
 }
 
 void Widget::slot_port_readyRead()
@@ -192,9 +195,9 @@ void Widget::slot_port_readyRead()
     {
         //ui->textEdit->append(QString(rxArray.toHex().toUpper()));
 
-        //emit sig_data_recv(rxArray.data(), rxArray.size());//send to protocl
+        emit sig_data_recv(rxArray.data(), rxArray.size());//send to protocl
         //or
-        m_protocol->parse_pack(rxArray.data(), rxArray.size());
+        //m_protocol->parse_pack(rxArray.data(), rxArray.size());
     }
 
 }

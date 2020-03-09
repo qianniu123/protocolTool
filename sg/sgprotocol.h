@@ -15,6 +15,8 @@
 #define SG_PACKET_END4          (0x2A)
 #define SG_PACKET_END5          (0x2A)
 
+#define PACK_END_STR    "##_**"
+
 /* global CMD */
 typedef enum SG_COMMUT_CMD
 {
@@ -76,7 +78,6 @@ typedef struct sg_commut_data
 }sg_commut_data_t;
 
 
-
 //SG struct
 typedef struct
 {
@@ -106,6 +107,22 @@ typedef struct
     }gsv_states_info[3];
 
 }gsv_rsp_t;
+
+typedef struct
+{
+    uint8_t nb_flag;
+    uint8_t gsm_flag;
+    uint16_t nb_rfcal_flag;
+    uint16_t gsm_rfcal_flag;
+}rfcal_flag_t;
+
+typedef struct
+{
+    uint8_t sn[15+1];
+    uint8_t imei[15+1];
+}imei_sn_t;
+
+
 
 typedef struct
 {
@@ -207,6 +224,26 @@ typedef struct
     char city[20+1];//?
 }sg_weather_t;
 
+//--------------------------
+typedef struct
+{
+    //userId token
+    uint8_t token[32];
+    uint8_t userId[6];
+
+    char version[5+1];
+    ccid_csq_rsp_t ccid_csq;
+    uint8_t nb_net_state;// nb=1,gsm=2
+    char imsi[15+1];
+
+    sg_gps_t gps;
+    gsv_rsp_t gsv;
+    rfcal_flag_t rfcal;
+    imei_sn_t imei_sn;
+
+}nb_context_t;
+
+
 #pragma pack()
 
 
@@ -233,17 +270,24 @@ public:
     QMap<QString, slot_func_sg> m_strToCmd_sg; //cmd_str --> cmd_function()
 
     uint8_t sendBuffer[1024];
-    //uint8_t recvBuffer[1024];
+    uint8_t recvBuffer[1024];
     QByteArray recvArray;
+    //for display
     char    debugBuffer[1024];
+    QByteArray debugArray;
 
     sg_commut_data_t *p_sg_pack;
-     //userId token
-    uint8_t token[32];
-    uint8_t userId[6];
+
     uint8_t packEnd[5];
 
-    int parse_pack(char *data, int len) override;
+    int parse_pack(char *data, int len);
+
+    nb_context_t m_nb_context;
+    //userId token
+    //uint8_t token[32];
+    //uint8_t userId[6];
+    void local_cmds_send(SG_COMMUT_CMD_E cmd);
+    void net_cmds_send(SG_COMMUT_CMD_E cmd, char* data, int len);
 
 signals:
     //void sig_SendData(uint8_t data, int len);//in Base class
@@ -252,10 +296,29 @@ public slots:
     void slot_cmd_send(QString strCmd) override;
     void slot_data_recv(char *data, int len) override;
 
+    //local cmd
+    void slot_get_nb_vers(void);
+    void slot_get_nb_ccid(void);
+    void slot_get_nb_imsi(void);
+    void slot_get_nb_state(void);
+    void slot_get_net_state(void);
+    void slot_get_nb_gps(void);
+    void slot_get_nb_gsv(void);
+    void slot_get_nb_rfcal(void);
+    void slot_get_nb_imeisn(void);
+
+    //net cmd
     void slot_device_heartbeat_send(void);
     void slot_device_hello_send(void);
     void slot_device_bind_send(void);
     void slot_device_software_version_upload(void);
+
+    void slot_heart_upload(void);
+    void slot_location_upload(void);
+    void slot_weather_query(void);
+    void slot_userBaseInfo_upload(void);
+    void slot_sleep_upload(void);
+    void slot_lunar_query(void);
 
 };
 

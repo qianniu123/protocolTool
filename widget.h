@@ -37,7 +37,7 @@ public slots:
     void slot_protocol_changed(QString protocolName);
 
     void slot_send_data(char* data, int len);
-    void slot_send_debug_data(char *data);
+    void slot_send_display_data(char *data,int len);
 
 private slots:
     void on_pushButton_open_clicked();
