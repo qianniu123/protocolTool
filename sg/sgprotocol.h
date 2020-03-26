@@ -111,8 +111,8 @@ typedef struct
 typedef struct
 {
     uint8_t nb_flag;
-    uint8_t gsm_flag;
     uint16_t nb_rfcal_flag;
+    uint8_t gsm_flag;
     uint16_t gsm_rfcal_flag;
 }rfcal_flag_t;
 
@@ -241,6 +241,7 @@ typedef struct
     rfcal_flag_t rfcal;
     imei_sn_t imei_sn;
 
+    int time;
 }nb_context_t;
 
 
@@ -306,7 +307,7 @@ public slots:
     void slot_get_nb_gsv(void);
     void slot_get_nb_rfcal(void);
     void slot_get_nb_imeisn(void);
-
+    void slot_get_nb_time(void);
     //net cmd
     void slot_device_heartbeat_send(void);
     void slot_device_hello_send(void);

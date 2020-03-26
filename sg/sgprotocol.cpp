@@ -13,6 +13,8 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
     m_cmdList.clear();
     m_cmdList<< "CMD_NB_VERS" << "CMD_DEV_CCID" << "CMD_DEV_IMSI" << "CMD_NB_NET_STATE" \
              << "CMD_NB_GPS" << "CMD_NB_GSV" << "CMD_NB_RFCAL" << "CMD_NB_IMEI_SN"  \
+             << "CMD_DEV_UPDATA_TIME" \
+             \
              << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload" \
              << "HEART_UPLOAD" << "LOCATION_UPLOAD" << "WEATHER_QUERY" << "USER_BASE_INFO_UPLOAD" \
              << "SLEEP_UPLOAD" << "LUNAR_QUERY";
@@ -33,6 +35,8 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
     m_strToCmd["CMD_NB_GSV"]        = (slot_function)&SGProtocol::slot_get_nb_gsv;
     m_strToCmd["CMD_NB_RFCAL"]      = (slot_function)&SGProtocol::slot_get_nb_rfcal;
     m_strToCmd["CMD_NB_IMEI_SN"]    = (slot_function)&SGProtocol::slot_get_nb_imeisn;
+
+    m_strToCmd["CMD_DEV_UPDATA_TIME"]=(slot_function)&SGProtocol::slot_get_nb_time;
 
     //net cmd
     m_strToCmd["DEVICE_HELLO"]      = (slot_function)(&SGProtocol::slot_device_hello_send);
@@ -240,7 +244,12 @@ int SGProtocol::parse_pack(char *data, int len)
                 m_nb_context.imei_sn.imei, m_nb_context.imei_sn.sn);
         break;
     }
-
+    case CMD_DEV_UPDATE_TIME:
+    {
+        m_nb_context.time = *(int*)p_pack->data;
+        sprintf(debugBuffer+strlen(debugBuffer),"stamp=%d", m_nb_context.time);
+        break;
+    }
 
     //net cmd
     case DEVICE_HEARTBEAT:
@@ -249,6 +258,11 @@ int SGProtocol::parse_pack(char *data, int len)
         break;
     }
     case DEVICE_HELLO:
+    {
+
+        break;
+    }
+    case DEVICE_BIND:
     {
 
         break;
@@ -339,6 +353,11 @@ void SGProtocol::slot_get_nb_imeisn()
     local_cmds_send(CMD_NB_IMEI_SN);
 }
 
+void SGProtocol::slot_get_nb_time()
+{
+    qDebug() << QString("SGProtocol::slot_get_nb_time");
+    local_cmds_send(CMD_DEV_UPDATE_TIME);
+}
 //=======================================================================
 void SGProtocol::net_cmds_send(SG_COMMUT_CMD_E cmd, char *data, int len)
 {
