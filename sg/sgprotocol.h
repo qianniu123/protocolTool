@@ -123,7 +123,6 @@ typedef struct
 }imei_sn_t;
 
 
-
 typedef struct
 {
     int count;

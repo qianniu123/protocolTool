@@ -8,6 +8,7 @@
 #include "protocol.h"
 #include "sg/sgprotocol.h"
 #include "JL/jlprotocol.h"
+#include "ublox/ublox.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }

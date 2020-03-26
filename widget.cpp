@@ -35,7 +35,7 @@ Widget::Widget(QWidget *parent, Protocol *protocol): QWidget(parent) ,m_protocol
     connect(ui->pushButton_clearText, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
     //--------------------------------------------------------------------------------------------------
     m_protocolList.clear();
-    m_protocolList << "SG_PROTO" << "JL_PROTO";
+    m_protocolList << "SG_PROTO" << "JL_PROTO" << "UBLOX";
     ui->comboBox_protocol->addItems(m_protocolList);
     connect(ui->comboBox_protocol, &QComboBox::currentTextChanged, this, &Widget::slot_protocol_changed);
 
@@ -65,6 +65,10 @@ void Widget::slot_protocol_changed(QString protocolName)
     else if(protocolName == "JL_PROTO")
     {
         m_protocol = new JLProtocol();
+    }
+    else if(protocolName == "UBLOX")
+    {
+        m_protocol = new Ublox();
     }
     else
     {
