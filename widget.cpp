@@ -28,10 +28,15 @@ Widget::Widget(QWidget *parent, Protocol *protocol): QWidget(parent) ,m_protocol
     m_portTimer->setInterval(1000);
     connect(m_portTimer, &QTimer::timeout, this, &Widget::slot_port_timeout);
     m_portTimer->start();
+    m_readyReadTimer = new QTimer();
 
     m_serialPort = new QSerialPort();
+#if 0
     connect(m_serialPort, &QSerialPort::readyRead, this, &Widget::slot_port_readyRead);
-
+#else
+    connect(m_serialPort, &QSerialPort::readyRead, this, &Widget::slot_port_readReadTimer_start);
+    connect(m_readyReadTimer, &QTimer::timeout, this, &Widget::slot_port_readyRead);
+#endif
     connect(ui->pushButton_clearText, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
     //--------------------------------------------------------------------------------------------------
     m_protocolList.clear();
@@ -39,6 +44,9 @@ Widget::Widget(QWidget *parent, Protocol *protocol): QWidget(parent) ,m_protocol
     ui->comboBox_protocol->addItems(m_protocolList);
     connect(ui->comboBox_protocol, &QComboBox::currentTextChanged, this, &Widget::slot_protocol_changed);
 
+    QStringList baudRateList;
+    baudRateList << "115200" << "9600";
+    ui->comboBox_baudRate->addItems(baudRateList);
     //-----------
     init();
 }
@@ -142,7 +150,8 @@ void Widget::slot_port_timeout()
 
 void Widget::on_pushButton_open_clicked()
 {
-    m_serialPort->setBaudRate(QSerialPort::Baud115200);
+    int baudRate = ui->comboBox_baudRate->currentText().toInt();
+    m_serialPort->setBaudRate(baudRate);//(QSerialPort::Baud115200);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
     m_serialPort->setParity(QSerialPort::NoParity);
@@ -190,8 +199,15 @@ void Widget::slot_send_display_data(char *data, int len)
     ui->textEdit->append(QString(dispArray));
 }
 
+void Widget::slot_port_readReadTimer_start()
+{
+    m_readyReadTimer->start(100);
+
+}
 void Widget::slot_port_readyRead()
 {
+    m_readyReadTimer->stop();
+
     QByteArray rxArray = m_serialPort->readAll();
     //m_serialPort->waitForReadyRead(100);
 

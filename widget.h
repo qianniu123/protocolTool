@@ -30,11 +30,12 @@ public:
 
     QSerialPort *m_serialPort;
     QTimer      *m_portTimer;
-
+    QTimer      *m_readyReadTimer;
 
 public slots:
     void slot_port_timeout();
     void slot_port_readyRead();
+    void slot_port_readReadTimer_start();
     void slot_protocol_changed(QString protocolName);
 
     void slot_send_data(char* data, int len);
