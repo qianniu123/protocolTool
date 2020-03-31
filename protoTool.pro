@@ -1,6 +1,6 @@
 QT       += core gui serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++11
 
@@ -15,10 +15,14 @@ DEFINES += timegm=mktime
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += qcustomplot \
+
 SOURCES += \
     JL/jlprotocol.cpp \
     main.cpp \
+    plot.cpp \
     protocol.cpp \
+    qcustomplot/qcustomplot.cpp \
     sg/sgprotocol.cpp \
     ublox/minmea.c \
     ublox/ublox.cpp \
@@ -26,13 +30,16 @@ SOURCES += \
 
 HEADERS += \
     JL/jlprotocol.h \
+    plot.h \
     protocol.h \
+    qcustomplot/qcustomplot.h \
     sg/sgprotocol.h \
     ublox/minmea.h \
     ublox/ublox.h \
     widget.h
 
 FORMS += \
+    plot.ui \
     widget.ui
 
 # Default rules for deployment.

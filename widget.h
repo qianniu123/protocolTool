@@ -9,6 +9,7 @@
 #include "sg/sgprotocol.h"
 #include "JL/jlprotocol.h"
 #include "ublox/ublox.h"
+#include "plot.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -32,6 +33,8 @@ public:
     QTimer      *m_portTimer;
     QTimer      *m_readyReadTimer;
 
+    Plot        *mPlot;
+
 public slots:
     void slot_port_timeout();
     void slot_port_readyRead();
@@ -43,6 +46,7 @@ public slots:
 
 private slots:
     void on_pushButton_open_clicked();
+    void on_pushButton_plot_clicked();
 
 signals:
     void sig_data_recv(char* data, int len);

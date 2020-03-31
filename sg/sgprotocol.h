@@ -223,6 +223,35 @@ typedef struct
     char city[20+1];//?
 }sg_weather_t;
 
+typedef struct
+{
+    uint8_t high;
+    uint8_t low;
+    uint8_t rate;
+    uint32_t fromTime;
+    uint32_t toTime;
+}sg_bp_t;
+
+typedef struct
+{
+    uint32_t time;
+    uint16_t period;
+    uint8_t spo2;
+}sg_spo2_t;
+
+typedef struct
+{
+    uint32_t time;
+    uint16_t period;
+    uint8_t af;
+}sg_af_t;
+
+typedef struct
+{
+    sg_bp_t bp;
+    sg_spo2_t spo2;
+    sg_af_t af;
+}sg_health_t;
 //--------------------------
 typedef struct
 {
@@ -319,7 +348,7 @@ public slots:
     void slot_userBaseInfo_upload(void);
     void slot_sleep_upload(void);
     void slot_lunar_query(void);
-
+    void slot_health_upload(void);
 };
 
 #endif // SGPROTOCOL_H

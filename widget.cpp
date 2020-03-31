@@ -221,3 +221,11 @@ void Widget::slot_port_readyRead()
     }
 
 }
+
+void Widget::on_pushButton_plot_clicked()
+{
+    mPlot = new Plot();
+    mPlot->show();
+
+    connect(m_protocol, &Protocol::sig_plot, mPlot, &Plot::slot_plot_xy);
+}

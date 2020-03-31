@@ -17,7 +17,7 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
              \
              << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload" \
              << "HEART_UPLOAD" << "LOCATION_UPLOAD" << "WEATHER_QUERY" << "USER_BASE_INFO_UPLOAD" \
-             << "SLEEP_UPLOAD" << "LUNAR_QUERY";
+             << "SLEEP_UPLOAD" << "LUNAR_QUERY" << "HEALTH_UPLOAD";
 
     /*
     m_strToCmd_sg.clear();
@@ -50,7 +50,7 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
     m_strToCmd["USER_BASE_INFO_UPLOAD"]  = (slot_function)&SGProtocol::slot_userBaseInfo_upload;
     m_strToCmd["SLEEP_UPLOAD"]      = (slot_function)&SGProtocol::slot_sleep_upload;
     m_strToCmd["LUNAR_QUERY"]       = (slot_function)&SGProtocol::slot_lunar_query;
-
+    m_strToCmd["HEALTH_UPLOAD"]  = (slot_function)&SGProtocol::slot_health_upload;
     //-----------------------------------------------------------
     memset(&m_nb_context, 0, sizeof(m_nb_context));
 
@@ -616,3 +616,16 @@ void SGProtocol::slot_weather_query()
     //same as slot_location_upload();
 }
 
+void SGProtocol::slot_health_upload()
+{
+    qDebug() << QString("SGProtocol::slot_health_upload");
+    long time = QDateTime::currentSecsSinceEpoch();
+    //sg_bp_t bp = {};
+    //sg_spo2_t spo2 = {};
+    //sg_af_t af = {};
+    sg_health_t health = {{128, 81, 64, (uint32_t)time, (uint32_t)time}, \
+                          {(uint32_t)time, 256, 98},\
+                          {(uint32_t)time, 256, 0}};
+
+    net_cmds_send(HEALTH_UPLOAD, (char*)&health, sizeof(sg_health_t));
+}
