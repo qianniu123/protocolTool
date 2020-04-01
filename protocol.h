@@ -7,6 +7,7 @@
 
 class Protocol;
 typedef void (Protocol::*slot_function)(void);
+typedef void (Protocol::*event_callback)(int32_t event_id, void* param, uint32_t param_len);
 
 class Protocol : public QObject
 {
@@ -18,7 +19,8 @@ public:
     QStringList m_cmdList;
     QMap<QString, slot_function> m_strToCmd;
 
-    //virtual int parse_pack(char* data,int len);
+    //virtual int parse_pack(char* data,int len);    
+    virtual void register_event_callback(int32_t mask, event_callback callback);
 
 signals:
     void sig_send_data(char* data, int len);

@@ -77,6 +77,11 @@ void Widget::slot_protocol_changed(QString protocolName)
     else if(protocolName == "UBLOX")
     {
         m_protocol = new Ublox();
+        //m_protocol = Ublox::getUblox();
+        #ifdef UBLOX_OBSERVER
+            m_protocol->register_event_callback(0, (event_callback)&Widget::widget_event_callback);
+
+        #endif
     }
     else
     {
@@ -228,4 +233,11 @@ void Widget::on_pushButton_plot_clicked()
     mPlot->show();
 
     connect(m_protocol, &Protocol::sig_plot, mPlot, &Plot::slot_plot_xy);
+}
+
+void Widget::widget_event_callback(int32_t event_id, void *param, uint32_t param_len)
+{
+
+    qDebug() << QString("id: %1, param: %2").arg(event_id).arg((char*)param);
+
 }

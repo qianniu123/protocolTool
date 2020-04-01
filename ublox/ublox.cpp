@@ -20,7 +20,33 @@ Ublox::Ublox()
     m_strToCmd["UBLOX_CONFIG_NMEA"] = (slot_function)&Ublox::slot_ublox_config_nmea;
 
 }
-
+Ublox::~Ublox()
+{
+    qDebug() << __FUNCTION__ ;
+    //freeUblox();
+#ifdef UBLOX_OBSERVER
+    free_event_list();
+#endif
+}
+/*
+Ublox* Ublox::mUblox = nullptr;
+Ublox* Ublox::getUblox()
+{
+    if(mUblox==nullptr)
+    {
+        mUblox = new Ublox();
+    }
+    return mUblox;
+}
+void Ublox::freeUblox()
+{
+    if(mUblox)
+    {
+        delete mUblox;
+    }
+    mUblox = nullptr;
+}
+*/
 void Ublox::slot_cmd_send(QString strCmd)
 {
     qDebug() << QString("Ublox::slot_cmd_send(%1)").arg(strCmd);
@@ -214,8 +240,16 @@ void Ublox::nmea_sentence_process(char *data)
                         minmea_tocoord(&frame.longitude),
                         minmea_tofloat(&frame.speed));
                 */
-                sprintf(debugBuffer+strlen(debugBuffer), "latitude: %f, longitude: %f",
-                        minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude));
+
+                sprintf(debugBuffer+strlen(debugBuffer), "latitude: %f, longitude: %f, NS: %c, EW: %c",
+                        minmea_tocoord(&frame.latitude), minmea_tocoord(&frame.longitude),\
+                        frame.NS, frame.EW);
+                if(frame.valid)
+                {
+                    static int cnt=0;
+                    cnt++;
+                    notify_event(cnt, debugBuffer);//
+                }
             }
             else
             {
@@ -260,3 +294,43 @@ void Ublox::nmea_sentence_process(char *data)
 
     emit sig_send_display_data(debugBuffer, strlen(debugBuffer));
 }
+
+
+#ifdef UBLOX_OBSERVER
+
+void Ublox::register_event_callback(int32_t mask, event_callback callback)
+{
+    if(callback!=nullptr)
+    {
+        for(int i=0; i<UBLOX_EVENT_LIST_MAX; i++)
+        {
+            if(ublox_event_list[i].callback == nullptr)
+            {
+                ublox_event_list[i].callback = callback;
+            }
+        }
+    }
+
+}
+
+void Ublox::notify_event(int32_t event_id, void *param)
+{
+
+    for(int i=0;i<UBLOX_EVENT_LIST_MAX;i++)
+    {
+        if(ublox_event_list[i].callback != nullptr)
+        {
+            //ublox_event_list[i].callback(event_id, param, strlen((char*)param));
+            //----
+            (Protocol::*)(ublox_event_list[i].callback)(event_id, param, strlen((char*)param));
+           //event_callback *p_cb = Protocol::*(ublox_event_list[i].callback);
+
+        }
+    }
+}
+
+void Ublox::free_event_list()
+{
+    memset((char*)ublox_event_list, 0, sizeof(ublox_event_list));
+}
+#endif

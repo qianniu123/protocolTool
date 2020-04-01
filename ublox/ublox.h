@@ -2,6 +2,7 @@
 #define UBLOX_H
 
 #include <stdint.h>
+#include "protocol.h"
 
 #pragma pack(0x1)
 //"µb"
@@ -47,6 +48,21 @@ typedef struct
 
 #pragma pack()
 
+#define UBLOX_OBSERVER //ublox is subject
+#ifdef UBLOX_OBSERVER
+typedef enum
+{
+    LOCATION_VALID,
+    LOCATION_INVALID,
+
+}ublox_event_t;
+
+//typedef void (*event_callback)(int32_t event_id, void* param, uint32_t param_len);
+
+
+#define UBLOX_EVENT_LIST_MAX 50
+#endif
+
 //======================
 #include <QObject>
 #include "protocol.h"
@@ -56,6 +72,7 @@ class Ublox : public Protocol
     Q_OBJECT
 public:
     Ublox();
+    ~Ublox() override;
 
     char debugBuffer[1024];
     uint8_t sendBuffer[1024];
@@ -77,6 +94,29 @@ public slots:
     //ublox config
     void slot_ublox_config_nmea(void);//config nmea protocol
     void slot_ublox_config_gnss(void);
+
+    /*//sington
+public:
+    static Ublox* getUblox();
+    void freeUblox();
+private:
+    Ublox();
+    static Ublox* mUblox;
+    */
+#ifdef UBLOX_OBSERVER
+public:
+    typedef struct
+    {
+        uint32_t mask;
+        event_callback callback;
+    }ublox_event_node_t;
+
+    ublox_event_node_t ublox_event_list[UBLOX_EVENT_LIST_MAX];
+    void register_event_callback(int32_t mask, event_callback callback) override;
+    void notify_event(int32_t event_id, void *param);
+    void free_event_list();
+signals:
+#endif
 };
 
 #endif // UBLOX_H

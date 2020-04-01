@@ -65,6 +65,8 @@ struct minmea_sentence_rmc {
     struct minmea_float course;
     struct minmea_date date;
     struct minmea_float variation;
+    char NS;
+    char EW;
 };
 
 struct minmea_sentence_gga {

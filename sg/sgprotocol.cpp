@@ -17,7 +17,7 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
              \
              << "DEVICE_HELLO" << "DEVICE_BIND"<< "DEVICE_HEARTBEAT" << "DEVICE_SOFTWARE_VERSION_Upload" \
              << "HEART_UPLOAD" << "LOCATION_UPLOAD" << "WEATHER_QUERY" << "USER_BASE_INFO_UPLOAD" \
-             << "SLEEP_UPLOAD" << "LUNAR_QUERY" << "HEALTH_UPLOAD";
+             << "SLEEP_UPLOAD" << "LUNAR_QUERY" << "HEALTH_UPLOAD" << "DEVICE_OPERATION";
 
     /*
     m_strToCmd_sg.clear();
@@ -51,6 +51,8 @@ SGProtocol::SGProtocol(Protocol *parent) : Protocol(parent)//: QObject(parent)
     m_strToCmd["SLEEP_UPLOAD"]      = (slot_function)&SGProtocol::slot_sleep_upload;
     m_strToCmd["LUNAR_QUERY"]       = (slot_function)&SGProtocol::slot_lunar_query;
     m_strToCmd["HEALTH_UPLOAD"]  = (slot_function)&SGProtocol::slot_health_upload;
+    m_strToCmd["DEVICE_OPERATION"] = (slot_function)&SGProtocol::slot_device_operation;
+
     //-----------------------------------------------------------
     memset(&m_nb_context, 0, sizeof(m_nb_context));
 
@@ -217,7 +219,8 @@ int SGProtocol::parse_pack(char *data, int len)
     case CMD_NB_GPS:
     {
         memcpy(&m_nb_context.gps, p_pack->data, p_pack->data_len);
-        sprintf(debugBuffer+strlen(debugBuffer), "longtitude=%f, latitude=%f, EW=%c, NS=%c", m_nb_context.gps.longitude, m_nb_context.gps.latitude\
+        sprintf(debugBuffer+strlen(debugBuffer), "is_valid=%d, longtitude=%f, latitude=%f, EW=%c, NS=%c", \
+                m_nb_context.gps.is_valid, m_nb_context.gps.longitude, m_nb_context.gps.latitude\
                 ,m_nb_context.gps.EW, m_nb_context.gps.NS);
         break;
     }
@@ -496,8 +499,7 @@ void SGProtocol::slot_location_upload()
     {
         sprintf(wifi[i].mac, "30fc68c20%03d", rand()%255);//000-255
         sprintf(wifi[i].mac_name, "name%d", i+1);
-        wifi[i].signal = rand()%20+50;//-50~-70
-
+        sprintf(wifi[i].signal,"%d", -(rand()%20+50));//-50~-70
         //qDebug() << wifi[i].mac << wifi[i].mac_name << wifi[i].signal;
     }
 
@@ -628,4 +630,14 @@ void SGProtocol::slot_health_upload()
                           {(uint32_t)time, 256, 0}};
 
     net_cmds_send(HEALTH_UPLOAD, (char*)&health, sizeof(sg_health_t));
+}
+
+void SGProtocol::slot_device_operation()
+{
+    qDebug() << QString("SGProtocol::slot_device_operation");
+    long time = QDateTime::currentSecsSinceEpoch();
+
+    sg_operation_t opera = {SOS, 0, (uint32_t)time};
+    qDebug() << QString("poera:code=%1, status=%2, time=%3").arg(opera.code).arg(opera.status).arg(opera.time);
+    net_cmds_send(DEVICE_OPERATION, (char*)&opera, sizeof(sg_operation_t));
 }

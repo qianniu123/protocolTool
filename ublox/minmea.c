@@ -405,6 +405,8 @@ bool minmea_parse_rmc(struct minmea_sentence_rmc *frame, const char *sentence)
     frame->longitude.value *= longitude_direction;
     frame->variation.value *= variation_direction;
 
+    frame->NS = latitude_direction==1?'N':(latitude_direction==-1?'S':'0');//latitude
+    frame->EW = longitude_direction==1?'E':(longitude_direction==-1?'W':'0');
     return true;
 }
 

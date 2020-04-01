@@ -111,8 +111,8 @@ typedef struct
 typedef struct
 {
     uint8_t nb_flag;
-    uint16_t nb_rfcal_flag;
     uint8_t gsm_flag;
+    uint16_t nb_rfcal_flag;
     uint16_t gsm_rfcal_flag;
 }rfcal_flag_t;
 
@@ -131,6 +131,7 @@ typedef struct
 
 typedef struct
 {
+    uint8_t is_valid;
     double latitude;
     double longitude;
     uint8_t NS;
@@ -163,9 +164,9 @@ typedef struct
 #define WIFI_FIX_CNT 5
 typedef struct
 {
-    char mac[32+1];
-    char mac_name[30+1];
-    int32_t  signal;
+    char mac[12+1];
+    char mac_name[15+1];
+    char signal[3+1];
 }sg_wifi_t;
 
 typedef struct
@@ -252,6 +253,22 @@ typedef struct
     sg_spo2_t spo2;
     sg_af_t af;
 }sg_health_t;
+
+typedef enum
+{
+    SOS = 102,
+    ONFF = 101,
+    CHARGE = 103,
+    LOCATION = 104,
+    RESET = 108,
+}OPERATION;
+
+typedef struct
+{
+    OPERATION code;
+    int8_t status;
+    uint32_t time;
+}sg_operation_t;
 //--------------------------
 typedef struct
 {
@@ -348,7 +365,9 @@ public slots:
     void slot_userBaseInfo_upload(void);
     void slot_sleep_upload(void);
     void slot_lunar_query(void);
+
     void slot_health_upload(void);
+    void slot_device_operation(void);
 };
 
 #endif // SGPROTOCOL_H

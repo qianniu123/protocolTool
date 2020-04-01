@@ -35,6 +35,7 @@ public:
 
     Plot        *mPlot;
 
+    void widget_event_callback(int32_t event_id, void* param, uint32_t param_len);
 public slots:
     void slot_port_timeout();
     void slot_port_readyRead();
