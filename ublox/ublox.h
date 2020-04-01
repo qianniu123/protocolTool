@@ -58,6 +58,11 @@ typedef enum
 }ublox_event_t;
 
 //typedef void (*event_callback)(int32_t event_id, void* param, uint32_t param_len);
+typedef struct
+{
+    uint32_t mask;
+    event_callback callback;
+}ublox_event_node_t;
 
 
 #define UBLOX_EVENT_LIST_MAX 50
@@ -105,14 +110,9 @@ private:
     */
 #ifdef UBLOX_OBSERVER
 public:
-    typedef struct
-    {
-        uint32_t mask;
-        event_callback callback;
-    }ublox_event_node_t;
 
     ublox_event_node_t ublox_event_list[UBLOX_EVENT_LIST_MAX];
-    void register_event_callback(int32_t mask, event_callback callback) override;
+    void register_event_callback(event_callback callback) override;
     void notify_event(int32_t event_id, void *param);
     void free_event_list();
 signals:

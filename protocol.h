@@ -20,7 +20,7 @@ public:
     QMap<QString, slot_function> m_strToCmd;
 
     //virtual int parse_pack(char* data,int len);    
-    virtual void register_event_callback(int32_t mask, event_callback callback);
+    virtual void register_event_callback(event_callback callback);
 
 signals:
     void sig_send_data(char* data, int len);

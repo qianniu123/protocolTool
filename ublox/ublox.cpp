@@ -19,6 +19,12 @@ Ublox::Ublox()
     m_strToCmd["UBLOX_CONFIG_GNSS"] = (slot_function)&Ublox::slot_ublox_config_gnss;
     m_strToCmd["UBLOX_CONFIG_NMEA"] = (slot_function)&Ublox::slot_ublox_config_nmea;
 
+#ifdef UBLOX_OBSERVER
+    for(int i=0; i<UBLOX_EVENT_LIST_MAX; i++)
+    {
+        ublox_event_list[i].callback = nullptr;
+    }
+#endif
 }
 Ublox::~Ublox()
 {
@@ -298,7 +304,7 @@ void Ublox::nmea_sentence_process(char *data)
 
 #ifdef UBLOX_OBSERVER
 
-void Ublox::register_event_callback(int32_t mask, event_callback callback)
+void Ublox::register_event_callback(event_callback callback)
 {
     if(callback!=nullptr)
     {
@@ -307,6 +313,7 @@ void Ublox::register_event_callback(int32_t mask, event_callback callback)
             if(ublox_event_list[i].callback == nullptr)
             {
                 ublox_event_list[i].callback = callback;
+                break;
             }
         }
     }
@@ -320,11 +327,10 @@ void Ublox::notify_event(int32_t event_id, void *param)
     {
         if(ublox_event_list[i].callback != nullptr)
         {
-            //ublox_event_list[i].callback(event_id, param, strlen((char*)param));
+            (this->*(ublox_event_list[i].callback))(event_id, param, strlen((char*)param));
             //----
-            (Protocol::*)(ublox_event_list[i].callback)(event_id, param, strlen((char*)param));
-           //event_callback *p_cb = Protocol::*(ublox_event_list[i].callback);
-
+           /*event_callback p_cb = ublox_event_list[i].callback;
+            (this->*p_cb)(event_id, param, strlen((char*)param));*/
         }
     }
 }

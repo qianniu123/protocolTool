@@ -79,8 +79,7 @@ void Widget::slot_protocol_changed(QString protocolName)
         m_protocol = new Ublox();
         //m_protocol = Ublox::getUblox();
         #ifdef UBLOX_OBSERVER
-            m_protocol->register_event_callback(0, (event_callback)&Widget::widget_event_callback);
-
+            m_protocol->register_event_callback((event_callback)&Widget::widget_event_callback);
         #endif
     }
     else
